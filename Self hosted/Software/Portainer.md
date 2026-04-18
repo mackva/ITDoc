@@ -1,0 +1,27 @@
+Запускаем  portainer
+```sh
+sudo mkdir /opt/portainer
+sudo nano docker-compose.yaml
+sudo docker compose up -d
+```
+
+docker-compose.yaml
+```yaml
+version: '3'
+
+services:
+  portainer:
+    image: portainer/portainer-ce:latest
+    container_name: portainer
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /opt/portainer/portainer-data:/data
+    ports:
+      - "9000:9000"
+      - "9443:9443"
+```
+

@@ -1,0 +1,226 @@
+esphome:
+  name: ble-32s
+  #platform: ESP32
+  #board: nodemcu-32
+
+esp32:
+  board: nodemcu-32s
+  framework:
+      type: esp-idf
+
+wifi:
+  ssid: "ssid"
+  password: "password"
+  # specify address ip to use
+  #use_address: "192.168.0.160"
+  reboot_timeout: 4hours
+
+  #manual_ip:
+    #static_ip: 192.168.0.60
+    #gateway: 192.168.0.1
+    #subnet: 255.255.255.0
+    #dns1: 192.168.0.1
+    #dns2: 8.8.8.8
+
+
+# Enable logging
+#logger:
+
+
+# Enable Home Assistant API
+api:
+
+# Add webserver on port 80
+#web_server:
+  #port: 80
+
+# Enable update Over-The-Air
+#ota:
+  #platform: esphome
+
+# Enable Bluetooth scanning for this ESP32
+esp32_ble_tracker:
+  #scan_parameters:
+    #active: false
+    #duration: 33s
+    #interval: 100ms #161ms #1100ms
+    #window:   99ms #160ms #1090ms       
+
+  on_ble_service_data_advertise:
+
+      - mac_address: 40:b7:fc:18:3c:9f #BTH01
+        service_uuid: FCD2
+        then:
+          - lambda: |-          
+              //ESP_LOGD("ble_adv", "ble data: %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x ", x[0],x[1],x[2],x[3],x[4],x[5],x[6],x[7],x[8],x[9],x[10],x[11],x[12],x[13],x[14],x[15],x[16]);
+              int16_t temp_int = ((((x[6] & 0xff) | (x[7] & 0xff) << 8)));
+              float temp = temp_int/100.0;                            
+              float hum = ((((x[9] & 0xff) | (x[10] & 0xff) << 8)))/100.0;
+              float volt = ((((x[12] & 0xff) | (x[13] & 0xff) << 8)))/1000.0;
+              //ESP_LOGD("ble_BTH01", "temp %.2f hum %.2f volt %.3f",temp,hum,volt);
+              
+              if(x[5]==0x02&&x[8]==0x03&&x[11]==0x0C&&temp>(-40)&&temp<100&&hum>0&&hum<101&&volt>0&&volt<4)
+              {
+              id(BTH01_1_temperature_).publish_state(temp);
+              id(BTH01_1_humidity_).publish_state(hum);      
+              id(BTH01_1_volt_).publish_state(volt);
+              }
+
+      - mac_address: 40:b7:fc:17:ae:41 #BTH01
+        service_uuid: FCD2
+        then:
+          - lambda: |-          
+              //ESP_LOGD("ble_adv", "ble data: %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x %x ", x[0],x[1],x[2],x[3],x[4],x[5],x[6],x[7],x[8],x[9],x[10],x[11],x[12],x[13],x[14],x[15],x[16]);
+              int16_t temp_int = ((((x[6] & 0xff) | (x[7] & 0xff) << 8)));
+              float temp = temp_int/100.0;                            
+              float hum = ((((x[9] & 0xff) | (x[10] & 0xff) << 8)))/100.0;
+              float volt = ((((x[12] & 0xff) | (x[13] & 0xff) << 8)))/1000.0;
+              //ESP_LOGD("ble_BTH01", "temp %.2f hum %.2f volt %.3f",temp,hum,volt);
+              
+              if(x[5]==0x02&&x[8]==0x03&&x[11]==0x0C&&temp>(-40)&&temp<100&&hum>0&&hum<101&&volt>0&&volt<4)
+              {
+              id(BTH01_2_temperature_).publish_state(temp);
+              id(BTH01_2_humidity_).publish_state(hum);      
+              id(BTH01_2_volt_).publish_state(volt);
+              }
+
+sensor:
+  - platform: pvvx_mithermometer
+    mac_address: A4:C1:38:F4:36:55
+    #bindkey: "5a942a0c5e6315cbb8dc2219b629d159"
+    temperature:
+      name: "D1 Temperature"
+    humidity:
+      name: "D1 Humidity"
+    battery_level:
+      name: "D1 Battery Level"
+    battery_voltage:
+      name: "D1 Battery-Voltage"
+    signal_strength:
+      name: "D1 ignal"
+
+
+  - platform: pvvx_mithermometer
+    mac_address: A4:C1:38:CB:27:32
+    temperature:
+      name: "D2 Temperature"
+    humidity:
+      name: "D2 Humidity"
+    battery_level:
+      name: "D2 Battery-Level"
+    battery_voltage:
+      name: "D2 Battery-Voltage"
+    signal_strength:
+      name: "D2 Signal"
+
+  - platform: pvvx_mithermometer
+    mac_address: A4:C1:38:F2:30:1A   
+    temperature:
+      name: "D3 Temperature"
+    humidity:
+      name: "D3 Humidity"
+    battery_level:
+      name: "D3 Battery-Level"
+    battery_voltage:
+      name: "D3 Battery-Voltage"
+    signal_strength:
+      name: "D3 Signal"
+
+#BTH01
+  - platform: ble_rssi
+    mac_address: '40:b7:fc:18:3c:9f'
+    name: "BTH1 Signal"
+    filters:
+      - filter_out: nan   # <-- Processing will stop here on unknown values.
+      - median:
+          window_size: 10 
+
+  - platform: template
+    name: "BTH1 Humidity"
+    unit_of_measurement: '%'
+    accuracy_decimals: 2
+    device_class: "humidity"
+    state_class: "measurement"    
+    id: BTH01_1_humidity_
+    filters:
+      - median:
+          window_size: 7 
+          send_every: 6
+      #- delta: 0.05        
+  - platform: template          
+    name: "BTH1 Temperature"
+    unit_of_measurement: °C
+    accuracy_decimals: 2
+    device_class: "temperature"
+    state_class: "measurement"      
+    id: BTH01_1_temperature_
+    filters:
+      - median:
+          window_size: 7 
+          send_every: 6
+    # - delta: 0.05
+ 
+  - platform: template
+    name: "BTH1 Battery-Voltage"
+    accuracy_decimals: 3
+    unit_of_measurement: V
+    device_class: "voltage"
+    state_class: "measurement"    
+    id: BTH01_1_volt_
+    filters:
+      - median:
+          window_size: 7 
+          send_every: 6
+
+#BTH01
+  - platform: ble_rssi
+    mac_address: '40:b7:fc:17:ae:41'
+    name: "BTH2 Signal"
+    filters:
+      - filter_out: nan   # <-- Processing will stop here on unknown values.
+      - median:
+          window_size: 10 
+
+  - platform: template
+    name: "BTH2 Humidity"
+    unit_of_measurement: '%'
+    accuracy_decimals: 2
+    device_class: "humidity"
+    state_class: "measurement"    
+    id: BTH01_2_humidity_
+    filters:
+      - median:
+          window_size: 7 
+          send_every: 6
+      #- delta: 0.05        
+  - platform: template          
+    name: "BTH2 Temperature"
+    unit_of_measurement: °C
+    accuracy_decimals: 2
+    device_class: "temperature"
+    state_class: "measurement"      
+    id: BTH01_2_temperature_
+    filters:
+      - median:
+          window_size: 7 
+          send_every: 6
+    # - delta: 0.05
+ 
+  - platform: template
+    name: "BTH2 Battery-Voltage"
+    accuracy_decimals: 3
+    unit_of_measurement: V
+    device_class: "voltage"
+    state_class: "measurement"    
+    id: BTH01_2_volt_
+    filters:
+      - median:
+          window_size: 7 
+          send_every: 6
+
+
+
+# Show the status of ESP32
+#binary_sensor:
+  #- platform: status
+    #name: "Rooms Status"

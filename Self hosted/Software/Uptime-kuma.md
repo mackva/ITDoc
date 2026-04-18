@@ -1,0 +1,13 @@
+
+```yaml
+
+services:
+  uptime-kuma:
+    image: louislam/uptime-kuma:1
+    volumes:
+      - /opt/uptime-kuma/data:/app/data
+    ports:
+      - 3001:3001
+    restart: unless-stopped
+
+```
