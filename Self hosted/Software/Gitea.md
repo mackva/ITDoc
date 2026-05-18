@@ -72,3 +72,5 @@ networks:
 ```
 
 Заменить `MYTOKEN` в docker-compose.yaml
+
+Так же нужно настроить [[Continuous Integration in Gitea]]

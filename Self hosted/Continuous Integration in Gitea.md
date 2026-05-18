@@ -3,8 +3,9 @@
 1) Создаем новый репозиторий в Gitea http://192.168.1.31:3000 (см пример [MissJulia.Telegram.Bot](http://192.168.1.31:3000/mackva/MissJulia.Telegram.Bot))
 2) В настройках проекта включаем пакеты и действия.
 3) Создаем токен пользователя. Заводим в Параметры пользователя (Настройки) => Приложения => Управление токенами. Создаем  токен для публикации Docker образов. 
-4) Добавить секреты. Заводим в Параметры пользователя => Действия => Секреты, и добавляем два секрета например DOCKER_HUB_USERNAME, DOCKER_HUB_ACCESS_TOKEN со значениями из прошлого шага.
-5) Добавляем действия (CI) в наш репозиторий. Создаем файла [publish.yaml](http://192.168.1.31:3000/mackva/MissJulia.Telegram.Bot/src/branch/master/.gitea/workflows/publish.yaml) в папке  .gitea\\workflows
+4) Добавить секреты. Заводим в Параметры пользователя => Действия => Секреты, и добавляем два секрета например DOCKER_HUB_USERNAME, DOCKER_HUB_ACCESS_TOKEN со значениями логина и токена из прошлого шага
+5) Добавляем в Portener registries. Заходим в Registries => Custom registry => gitea/Ip/DOCKER_HUB_USERNAME/DOCKER_HUB_ACCESS_TOKEN
+6) Добавляем действия (CI) в наш репозиторий. Создаем файла [publish.yaml](http://192.168.1.31:3000/mackva/MissJulia.Telegram.Bot/src/branch/master/.gitea/workflows/publish.yaml) в папке  .gitea\\workflows
 
 Имя рабочего процесса, которое будет отображаться в разделе «Действия».
 ```

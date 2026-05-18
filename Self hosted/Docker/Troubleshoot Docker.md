@@ -6,7 +6,7 @@
 ```JSON
 {
   "insecure-registries": [
-    "192.168.1.31:3000"
+    "192.168.0.20:3000"
   ]
 }
 ```
@@ -39,7 +39,12 @@ Error response from daemon: pull access denied for nginx, repository does not ex
 
 daemon.json
 ```json
-"registry-mirrors": ["https://mirror.gcr.io", "https://dockerhub.timeweb.cloud"]
+{
+  "registry-mirrors": [
+    "https://mirror.gcr.io",
+    "https://dockerhub.timeweb.cloud"
+  ]
+}
 ```
 
 ```sh
